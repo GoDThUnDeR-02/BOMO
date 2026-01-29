@@ -1,19 +1,11 @@
-const socket = io("http://localhost:5000");
 const room = "user1_user2";
+const ws = new WebSocket(`ws://localhost:8000/ws/${room}`);
 
-socket.emit("join_room", { room });
+ws.onmessage = (event) => {
+  document.getElementById("chat").innerHTML += `<p>${event.data}</p>`;
+};
 
 function send() {
   const msg = document.getElementById("msg").value;
-
-  socket.emit("send_message", {
-    room: room,
-    message: msg,
-    sender: "user1"
-  });
+  ws.send(msg);
 }
-
-socket.on("receive_message", data => {
-  const chat = document.getElementById("chat");
-  chat.innerHTML += `<p>${data.sender}: ${data.message}</p>`;
-});
