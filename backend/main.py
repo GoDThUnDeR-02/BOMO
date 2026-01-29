@@ -1,12 +1,11 @@
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect
 from backend.websocket_manager import ConnectionManager
 
-
 app = FastAPI()
 manager = ConnectionManager()
 
 @app.get("/")
-def root():
+async def root():
     return {"status": "BUMO FastAPI running"}
 
 @app.websocket("/ws/{room_id}")
