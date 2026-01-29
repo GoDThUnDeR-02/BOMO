@@ -10,10 +10,10 @@ async def root():
 
 @app.websocket("/ws/{room_id}")
 async def websocket_endpoint(websocket: WebSocket, room_id: str):
-    await manager.connect(websocket, room_id)
+    await websocket.accept()   # 🔥 EXPLICIT ACCEPT (important for Render)
     try:
         while True:
             data = await websocket.receive_text()
             await manager.broadcast(data, room_id)
     except WebSocketDisconnect:
-        manager.disconnect(websocket, room_id)
+        pass
