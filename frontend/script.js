@@ -1,8 +1,9 @@
 const room = "user1_user2";
 
 const ws = new WebSocket(
-  "wss://bumo-klfa.onrender.com/ws/user1_user2"
+  "wss://bumo-klfa.onrender.com/ws/test"
 );
+
 
 ws.onopen = () => {
   console.log("Connected to BUMO WebSocket");
