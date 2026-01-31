@@ -1,12 +1,21 @@
 from fastapi import FastAPI, Request
 from fastapi.responses import StreamingResponse
+from fastapi.middleware.cors import CORSMiddleware
 import asyncio
 import json
 import time
 
 app = FastAPI()
 
-# One global async queue (fast & simple)
+# ✅ CORS FIX (THIS IS THE KEY)
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # allow all (safe for demo)
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 message_queue = asyncio.Queue()
 
 @app.get("/")
@@ -23,22 +32,14 @@ async def send_message(payload: dict):
     return {"status": "sent"}
 
 async def sse_event_generator(request: Request):
-    """
-    Optimized SSE generator:
-    - Non-blocking
-    - Handles client disconnects cleanly
-    """
     while True:
         if await request.is_disconnected():
             break
         try:
-            message = await asyncio.wait_for(
-                message_queue.get(), timeout=15
-            )
+            message = await asyncio.wait_for(message_queue.get(), timeout=15)
             yield f"data: {json.dumps(message)}\n\n"
         except asyncio.TimeoutError:
-            # keep-alive ping (important for proxies)
-            yield "data: {}\n\n"
+            yield "data: {}\n\n"  # keep-alive
 
 @app.get("/events")
 async def events(request: Request):

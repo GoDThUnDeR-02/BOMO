@@ -1,6 +1,6 @@
 const chat = document.getElementById("chat");
 
-const BASE_URL = "https://YOUR-RENDER-APP.onrender.com";
+const BASE_URL = "https://bomo-klfa.onrender.com";
 
 // 1️⃣ Open SSE connection
 const eventSource = new EventSource(`${BASE_URL}/events`);
