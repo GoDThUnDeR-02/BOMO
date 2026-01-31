@@ -1,24 +1,33 @@
-const room = "user1_user2";
+const chat = document.getElementById("chat");
 
-const ws = new WebSocket(
-  "wss://bumo-klfa.onrender.com/ws/test"
-);
+const BASE_URL = "https://YOUR-RENDER-APP.onrender.com";
 
+// 1️⃣ Open SSE connection
+const eventSource = new EventSource(`${BASE_URL}/events`);
 
-ws.onopen = () => {
-  console.log("Connected to BUMO WebSocket");
+eventSource.onmessage = (event) => {
+  if (!event.data || event.data === "{}") return;
+
+  const msg = JSON.parse(event.data);
+  chat.innerHTML += `<p>${msg.text}</p>`;
+  chat.scrollTop = chat.scrollHeight;
 };
 
-ws.onmessage = (event) => {
-  const chat = document.getElementById("chat");
-  chat.innerHTML += `<p>${event.data}</p>`;
+eventSource.onerror = () => {
+  console.log("SSE connection lost, retrying...");
 };
 
-ws.onerror = (err) => {
-  console.error("WebSocket error:", err);
-};
-
+// 2️⃣ Send message via HTTP POST
 function send() {
-  const msg = document.getElementById("msg").value;
-  ws.send(msg);
+  const input = document.getElementById("msg");
+  const text = input.value.trim();
+  if (!text) return;
+
+  fetch(`${BASE_URL}/send`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ text }),
+  });
+
+  input.value = "";
 }
